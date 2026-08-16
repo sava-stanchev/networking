@@ -11,10 +11,20 @@ public class Server {
 		while (true) {
 			Socket client = server.accept();
 			System.out.println("client connected: " + client.getRemoteSocketAddress());
-			InputStream input = client.getInputStream();
-			int data = input.read();
-			System.out.println("received: " + (char) data);
-			client.close();
+			
+			Thread thread = new Thread(() -> {
+				try {
+					InputStream input = client.getInputStream();
+					int data = input.read();
+					System.out.println("received from "
+						+ client.getRemoteSocketAddress() + ": " + (char) data);
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			
+			thread.start();
 		}
 	}
 }
