@@ -15,9 +15,13 @@ public class Server {
 			Thread thread = new Thread(() -> {
 				try {
 					InputStream input = client.getInputStream();
-					int data = input.read();
-					System.out.println("received from "
-						+ client.getRemoteSocketAddress() + ": " + (char) data);
+					int data;
+					
+					while ((data = input.read()) != -1) {
+						System.out.print((char) data);
+					}
+					
+					System.out.println("\nclient disconnected: " + client.getRemoteSocketAddress());
 					client.close();
 				} catch (IOException e) {
 					e.printStackTrace();
