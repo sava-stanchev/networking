@@ -1,15 +1,22 @@
+import java.nio.charset.StandardCharsets;
+
 public class Main {
 	public static void main(String[] args) {
-		int len = 16909060;
-		int byte1 = (len >> 24) & 0xff;
-		int byte2 = (len >> 16) & 0xff;
-		int byte3 = (len >> 8) & 0xff;
-		int byte4 = len & 0xff;
+		String msg = "hello";
+		byte[] payload = msg.getBytes(StandardCharsets.UTF_8);
+		int len = payload.length;
+		int lenByte1 = (len >> 24) & 0xff;
+		int lenByte2 = (len >> 16) & 0xff;
+		int lenByte3 = (len >> 8) & 0xff;
+		int lenByte4 = len & 0xff;
 
-		System.out.printf("%02x %02x %02x %02x%n", byte1, byte2, byte3, byte4);
+		System.out.println("message: " + msg);
+		System.out.println("length: " + len);
+		System.out.printf("%02x %02x %02x %02x ", lenByte1, lenByte2, lenByte3, lenByte4);
 		
-		int rebuilt = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-		System.out.println("original: " + len);
-		System.out.println("rebuilt: " + rebuilt);
+		for (byte b : payload) {
+			System.out.printf("%02x ", b & 0xff);
+		}
+		System.out.println();
 	}
 }
