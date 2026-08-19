@@ -1,24 +1,27 @@
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class Client {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Socket socket = new Socket("127.0.0.1", 8081);
 		OutputStream output = socket.getOutputStream();
-		byte[] len = {0x00, 0x00, 0x00, 0x05};
-		byte[] part1 = {0x68, 0x65};
-		byte[] part2 = {0x6c, 0x6c, 0x6f};
- 		
-		output.write(len);
+		String msg = "€";
+		byte[] payload = msg.getBytes(StandardCharsets.UTF_8);
+ 		int len = payload.length;
+
+		int byte1 = (len >> 24) & 0xff;
+		int byte2 = (len >> 16) & 0xff;
+		int byte3 = (len >> 8) & 0xff;
+		int byte4 = len & 0xff;
+		
+		output.write(byte1);
+		output.write(byte2);
+		output.write(byte3);
+		output.write(byte4);
+		output.write(payload);
 		output.flush();
-		output.write(part1);
-		output.flush();
-		System.out.println("sent: he");
-		Thread.sleep(3000);
-		output.write(part2);
-		output.flush();
-		System.out.println("sent: llo");
 
 		socket.close();
 	}

@@ -1,14 +1,15 @@
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.DataInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class Server {
 	public static void main(String[] args) throws IOException {
 		ServerSocket server = new ServerSocket(8081);
 		System.out.println("listening on port 8081");
 		Socket client = server.accept();
-		InputStream input = client.getInputStream();
+		DataInputStream input = new DataInputStream(client.getInputStream());
 		
 		int byte1 = input.read();
 		int byte2 = input.read();
@@ -19,16 +20,11 @@ public class Server {
 		int len = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
 		System.out.println("length: " + len);
 		byte[] payload = new byte[len];
-		
-		int total = 0;
-		while (total < len) {
-			int cnt = input.read(payload, total, len - total);
-			if (cnt == -1)
-				throw new IOException("incomplete payload");
-			total += cnt;
-		}
-		
-		System.out.println("bytes read: " + total);
+		input.readFully(payload);
+		String msg = new String(payload, StandardCharsets.UTF_8);
+		System.out.println("payload received");
+		System.out.println("message: " + msg);
+
 		client.close();
 		server.close();
 	}
