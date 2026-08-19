@@ -10,12 +10,25 @@ public class Server {
 		Socket client = server.accept();
 		InputStream input = client.getInputStream();
 		
-		int data;
-		while ((data = input.read()) != -1) {
-			System.out.printf("%02x ", data);
+		int byte1 = input.read();
+		int byte2 = input.read();
+		int byte3 = input.read();
+		int byte4 = input.read();
+		System.out.printf("%02x %02x %02x %02x%n", byte1, byte2, byte3, byte4);
+		
+		int len = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+		System.out.println("length: " + len);
+		byte[] payload = new byte[len];
+		
+		int total = 0;
+		while (total < len) {
+			int cnt = input.read(payload, total, len - total);
+			if (cnt == -1)
+				throw new IOException("incomplete payload");
+			total += cnt;
 		}
-		System.out.println();
-
+		
+		System.out.println("bytes read: " + total);
 		client.close();
 		server.close();
 	}
